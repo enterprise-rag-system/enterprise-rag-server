@@ -1,0 +1,16 @@
+# Rider / IntelliJ
+.idea/
+*.DotSettings.user
+
+# .NET build output
+**/bin/
+**/obj/
+
+# ASP.NET uploads / temp
+**/uploads/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
