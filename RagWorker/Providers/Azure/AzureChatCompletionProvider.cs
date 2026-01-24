@@ -1,7 +1,5 @@
 using Azure;
 using Azure.AI.OpenAI;
-using ChatService.Models.Entities;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RagWorker.Interfaces.AI;
 using RagWorker.Models.AI;

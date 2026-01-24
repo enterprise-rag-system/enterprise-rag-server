@@ -1,4 +1,3 @@
-using ChatService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using RagService.Services;
 using RagWorker.Consumer;
@@ -72,7 +71,9 @@ services.AddHostedService<DocumentUploadedConsumer>();
 services.AddHostedService<ChatMessageCreatedConsumer>();
 
 var app = builder.Build();
-ApplyMigration();
+
+//ApplyMigration();
+
 app.Run();
 
 void ApplyMigration()

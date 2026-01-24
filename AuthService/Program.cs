@@ -80,7 +80,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-ApplyMigration();
+//ApplyMigration();
 
 app.Run();
 

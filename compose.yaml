@@ -1,0 +1,168 @@
+﻿version: "3.9"
+
+services:
+  # ---------------------------
+  # PostgreSQL + pgvector
+  # ---------------------------
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ers-postgres
+    environment:
+      POSTGRES_USER: ersadmin
+      POSTGRES_PASSWORD: ers@1234
+      POSTGRES_DB: ers_v1
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - ers-net
+
+  # ---------------------------
+  # RabbitMQ
+  # ---------------------------
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ers-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ers-net
+
+  # ---------------------------
+  # API Gateway
+  # ---------------------------
+  api-gateway:
+    image: ers/api-gateway:1.1
+    container_name: ers-api-gateway
+    ports:
+      - "5001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+    depends_on:
+      - auth-service
+      - project-service
+      - document-service
+      - chat-service
+    networks:
+      - ers-net
+
+  # ---------------------------
+  # Auth Service
+  # ---------------------------
+  auth-service:
+    image: ers/auth-service:1.1
+    container_name: ers-auth-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://0.0.0.0:5200
+      ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=ers_v1;User Id=ersadmin;Password=ers@1234;Search Path=ers;
+      Jwt__Issuer: EnterpriseRag.Auth
+      Jwt__Audience: EnterpriseRag.Client
+      Jwt__SecretKey: Enterprise_RAG_Service_Secret_@2026
+    depends_on:
+      postgres:
+        condition: service_healthy    
+    networks:
+      - ers-net
+
+  # ---------------------------
+  # Project Service
+  # ---------------------------
+  project-service:
+    image: ers/project-service:1.1
+    container_name: ers-project-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://0.0.0.0:5002
+      ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=ers_v1;User Id=ersadmin;Password=ers@1234;Search Path=ers;
+    depends_on:
+      - postgres
+    networks:
+      - ers-net
+
+  # ---------------------------
+  # Document Service
+  # ---------------------------
+  document-service:
+    image: ers/document-service:1.1
+    container_name: ers-document-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://0.0.0.0:5026
+      ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=ers_v1;User Id=ersadmin;Password=ers@1234;Search Path=ers;
+      RabbitMQ__Hostname: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - ers-net
+
+  # ---------------------------
+  # Chat Service
+  # ---------------------------
+  chat-service:
+    image: ers/chat-service:1.1
+    container_name: ers-chat-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://0.0.0.0:5109
+      ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=ers_v1;User Id=ersadmin;Password=ers@1234;Search Path=ers;
+      RabbitMQ__Hostname: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - ers-net
+
+  # ---------------------------
+  # RAG Worker (NO HTTP)
+  # ---------------------------
+  rag-worker:
+    image: ers/rag-worker:1.1
+    container_name: ers-rag-worker
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=ers_v1;User Id=ersadmin;Password=ers@1234;Search Path=ers;
+      RabbitMQ__Hostname: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+          condition: service_healthy
+    networks:
+      - ers-net
+
+# ---------------------------
+# Volumes
+# ---------------------------
+volumes:
+  pgdata:
+
+# ---------------------------
+# Network
+# ---------------------------
+networks:
+  ers-net:
+    driver: bridge
