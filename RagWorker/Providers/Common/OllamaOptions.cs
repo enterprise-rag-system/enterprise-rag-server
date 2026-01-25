@@ -1,11 +1,15 @@
+using RagWorker.Interfaces.AI;
+
 namespace RagWorker.Providers.Common;
 
-public class OllamaOptions
+public class OllamaOptions: IAiProviderConnectionOptions, IChatModelOptions, IEmbeddingModelOptions
 {
     /// <summary>
     /// Ollama base URL (usually http://localhost:11434)
     /// </summary>
     public string BaseUrl { get; set; } = default!;
+
+    public string? ApiKey { get; }
 
     /// <summary>
     /// Chat model name (e.g. mistral, llama3)

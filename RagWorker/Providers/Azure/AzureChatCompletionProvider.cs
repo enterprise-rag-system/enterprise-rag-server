@@ -25,7 +25,7 @@ public sealed class AzureChatCompletionProvider : IChatCompletionProvider
         _logger = logger;
 
         _client = new OpenAIClient(
-            new Uri(_options.Endpoint),
+            new Uri(_options.BaseUrl),
             new AzureKeyCredential(_options.ApiKey));
     }
 
@@ -44,7 +44,7 @@ public sealed class AzureChatCompletionProvider : IChatCompletionProvider
             {
                 _logger.LogDebug(
                     "Generating chat completion using Azure OpenAI deployment {Deployment}",
-                    _options.ChatDeployment);
+                    _options.ChatModel);
 
                 var chatOptions = new ChatCompletionsOptions
                 {

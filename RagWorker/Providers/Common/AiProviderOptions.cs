@@ -5,7 +5,9 @@ public class AiProviderOptions
     /// <summary>
     /// Selected provider (AzureOpenAI / Ollama)
     /// </summary>
-    public string Provider { get; set; } = default!;
+    public string ChatProvider { get; set; } = default!;
+    
+    public string EmbeddingProvider { get; set; } = default!;
 
     /// <summary>
     /// Max retries for transient failures

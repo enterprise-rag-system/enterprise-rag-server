@@ -24,7 +24,7 @@ public sealed class AzureEmbeddingProvider : IEmbeddingProvider
         _logger = logger;
 
         _client = new OpenAIClient(
-            new Uri(_options.Endpoint),
+            new Uri(_options.BaseUrl),
             new AzureKeyCredential(_options.ApiKey));
     }
 
@@ -40,7 +40,7 @@ public sealed class AzureEmbeddingProvider : IEmbeddingProvider
             {
                 _logger.LogDebug(
                     "Generating embedding using Azure OpenAI deployment {Deployment}",
-                    _options.EmbeddingDeployment);
+                    _options.EmbeddingModel);
                 var response =
                     await _client.GetEmbeddingsAsync(
                         new EmbeddingsOptions(),

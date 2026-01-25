@@ -6,12 +6,16 @@ using RagWorker.Infrastructure.Messaging;
 using RagWorker.Infrastructure.Persistence;
 using RagWorker.Infrastructure.Vector;
 using RagWorker.Interfaces.AI;
+using RagWorker.Interfaces.Factory;
 using RagWorker.Interfaces.Ingestion;
 using RagWorker.Interfaces.Messaging;
 using RagWorker.Interfaces.Rag;
 using RagWorker.Interfaces.Vector;
 using RagWorker.Providers.Azure;
 using RagWorker.Providers.Common;
+using RagWorker.Providers.Factory;
+using RagWorker.Providers.Gemini;
+using RagWorker.Providers.Grok;
 using RagWorker.Providers.Ollama;
 using RagWorker.Workers;
 
@@ -48,24 +52,29 @@ services.Configure<AzureOpenAiOptions>(
 services.Configure<OllamaOptions>(
     configuration.GetSection("Ollama"));
 
-var aiProvider =
-    configuration.GetValue<string>("AI:Provider");
+services.Configure<GeminiOptions>(
+    configuration.GetSection("Gemini"));
 
-if (aiProvider == ProviderConstants.AzureOpenAi)
-{
-    services.AddScoped<IEmbeddingProvider, AzureEmbeddingProvider>();
-    services.AddScoped<IChatCompletionProvider, AzureChatCompletionProvider>();
-}
-else if (aiProvider == ProviderConstants.Ollama)
-{
-    services.AddHttpClient<IEmbeddingProvider, OllamaEmbeddingProvider>();
-    services.AddHttpClient<IChatCompletionProvider, OllamaChatCompletionProvider>();
-}
-else
-{
-    throw new InvalidOperationException(
-        $"Unsupported AI provider: {aiProvider}");
-}
+services.Configure<GrokOptions>(
+    configuration.GetSection("Grok"));
+
+// ---------- Azure OpenAI ----------
+services.AddHttpClient<AzureChatCompletionProvider>();
+services.AddHttpClient<AzureEmbeddingProvider>();
+
+// ---------- Ollama ----------
+services.AddHttpClient<OllamaChatCompletionProvider>();
+services.AddHttpClient<OllamaEmbeddingProvider>();
+
+// ---------- Gemini ----------
+services.AddHttpClient<GeminiChatCompletionProvider>();
+services.AddHttpClient<GeminiEmbeddingProvider>();
+
+// ---------- Grok (chat only) ----------
+services.AddHttpClient<GrokChatCompletionProvider>();
+
+services.AddScoped<IChatCompletionProviderFactory, AiProviderFactory>();
+services.AddScoped<IEmbeddingProviderFactory, AiProviderFactory>();
 
 services.AddHostedService<DocumentUploadedConsumer>();
 services.AddHostedService<ChatMessageCreatedConsumer>();

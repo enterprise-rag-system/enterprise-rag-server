@@ -4,6 +4,7 @@ using RagWorker.Interfaces.Vector;
 using RagWorker.Models.Rag;
 using RagWorker.Models.AI;
 using RagWorker.Helpers;
+using RagWorker.Interfaces.Factory;
 
 namespace RagWorker.Workers;
 
@@ -16,13 +17,13 @@ public sealed class RagQueryProcessor : IRagQueryProcessor
     private readonly IChatCompletionProvider _chatCompletionProvider;
 
     public RagQueryProcessor(
-        IEmbeddingProvider embeddingProvider,
         IVectorStore vectorStore,
-        IChatCompletionProvider chatCompletionProvider)
+        IChatCompletionProviderFactory chatFactory,
+        IEmbeddingProviderFactory embeddingFactory)
     {
-        _embeddingProvider = embeddingProvider;
         _vectorStore = vectorStore;
-        _chatCompletionProvider = chatCompletionProvider;
+        _chatCompletionProvider = chatFactory.Create();
+        _embeddingProvider = embeddingFactory.Create();
     }
 
     public async Task<RagResult> ProcessAsync(
