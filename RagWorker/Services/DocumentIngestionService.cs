@@ -2,6 +2,7 @@ using Pgvector;
 using RagWorker.Helpers;
 using RagWorker.Infrastructure.Persistence;
 using RagWorker.Interfaces.AI;
+using RagWorker.Interfaces.Factory;
 using RagWorker.Interfaces.Ingestion;
 using RagWorker.Interfaces.Vector;
 using RagWorker.Models.Entities;
@@ -20,14 +21,14 @@ public class DocumentIngestionService: IDocumentIngestionService
 
     public DocumentIngestionService(
         IChunkingService chunker,
-        IEmbeddingProvider embedding,
+        IEmbeddingProviderFactory factory,
         IVectorStore vectorStore,
         RagDbContext db,
         ITextExtractor textExtractor,
         ILogger<DocumentIngestionService> logger)
     {
         _chunker = chunker;
-        _embedding = embedding;
+        _embedding = factory.Create();
         _vectorStore = vectorStore;
         _db = db;
         _logger = logger;

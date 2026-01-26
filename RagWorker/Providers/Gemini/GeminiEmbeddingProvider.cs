@@ -13,6 +13,8 @@ public class GeminiEmbeddingProvider: IEmbeddingProvider
     private readonly GeminiOptions _options;
     private readonly AiProviderOptions _providerOptions;
     private readonly ILogger<GeminiEmbeddingProvider> _logger;
+    private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
 
     public GeminiEmbeddingProvider(
         HttpClient http,
@@ -43,12 +45,9 @@ public class GeminiEmbeddingProvider: IEmbeddingProvider
                         Parts = [ new GeminiEmbeddingPart { Text = input } ]
                     }
                 };
-
-                var response = await _http.PostAsJsonAsync(
-                    $"{_options.BaseUrl}/models/{_options.EmbeddingModel}:embedContent?key={_options.ApiKey}",
-                    request,
-                    cancellationToken);
-
+                var url = $"{_options.BaseUrl}/{_options.EmbeddingModel}:embedContent?key={_options.ApiKey}";
+                var response = await _http.PostAsJsonAsync(url, request, _jsonOptions, cancellationToken);
+                
                 response.EnsureSuccessStatusCode();
 
                 using var json = await JsonDocument.ParseAsync(

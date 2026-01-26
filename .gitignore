@@ -14,3 +14,7 @@
 
 # Logs
 *.log
+
+# .NET environment-specific configs
+**/appsettings.Development.json
+**/appsettings.Local.json

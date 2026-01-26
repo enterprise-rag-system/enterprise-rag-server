@@ -98,6 +98,8 @@ services:
   document-service:
     image: ers/document-service:1.1
     container_name: ers-document-service
+    volumes:
+      - document-storage:/data/uploads
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
       ASPNETCORE_URLS: http://0.0.0.0:5026
@@ -105,6 +107,7 @@ services:
       RabbitMQ__Hostname: rabbitmq
       RabbitMQ__Username: guest
       RabbitMQ__Password: guest
+      Storage__UploadFolderPath: /data/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -151,6 +154,8 @@ services:
         condition: service_healthy
       rabbitmq:
           condition: service_healthy
+    volumes:
+      - document-storage:/data/uploads
     networks:
       - ers-net
 

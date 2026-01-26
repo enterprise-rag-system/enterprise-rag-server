@@ -41,7 +41,7 @@ namespace RagWorker.Migrations
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
                     DocumentId = table.Column<Guid>(type: "uuid", nullable: false),
                     ChunkText = table.Column<string>(type: "text", nullable: false),
-                    Embedding = table.Column<Vector>(type: "vector(768)", nullable: false),
+                    Embedding = table.Column<Vector>(type: "vector(3072)", nullable: false),
                     ChunkIndex = table.Column<int>(type: "integer", nullable: false),
                     TokenCount = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

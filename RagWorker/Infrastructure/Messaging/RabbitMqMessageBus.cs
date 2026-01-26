@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +17,7 @@ public sealed class RabbitMqMessageBus : IMessageBus, IAsyncDisposable
     private IConnection? _connection;
     private IChannel? _channel;
     
-    private const int MaxRetryCount = 5;
+    private const int MaxRetryCount = 3;
     private const string RetryHeader = "x-retry-count";
 
 
@@ -178,6 +179,14 @@ public sealed class RabbitMqMessageBus : IMessageBus, IAsyncDisposable
                 await _channel.BasicAckAsync(
                     deliveryTag: args.DeliveryTag,
                     multiple: false);
+            }catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                _logger.LogWarning(
+                    "429 rate limit hit. ACKing message to prevent retry storm.");
+
+                // DO NOT republish
+                // DO NOT retry
+                await _channel.BasicAckAsync(args.DeliveryTag, false);
             }
             catch (Exception ex)
             {

@@ -29,7 +29,7 @@ public class RagDbContext : DbContext
             entity.HasKey(x => x.Id);
 
             entity.Property(x => x.Embedding)
-                .HasColumnType("vector(768)");
+                .HasColumnType("vector(3072)");
 
             entity.HasIndex(x => x.ProjectId);
             entity.HasIndex(x => x.DocumentId);

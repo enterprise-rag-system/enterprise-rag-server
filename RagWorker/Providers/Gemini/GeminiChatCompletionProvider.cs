@@ -14,6 +14,8 @@ public class GeminiChatCompletionProvider : IChatCompletionProvider
     private readonly GeminiOptions _geminiOptions;
     private readonly AiProviderOptions _providerOptions;
     private readonly ILogger<GeminiChatCompletionProvider> _logger;
+    private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
 
     public GeminiChatCompletionProvider(
         HttpClient httpClient,
@@ -49,12 +51,10 @@ public class GeminiChatCompletionProvider : IChatCompletionProvider
                         }
                     ]
                 };
+                
+                var url = $"{_geminiOptions.BaseUrl}/{_geminiOptions.ChatModel}:generateContent?key={_geminiOptions.ApiKey}";
 
-                var response = await _httpClient.PostAsJsonAsync(
-                    $"{_geminiOptions.BaseUrl}/models/{_geminiOptions.ChatModel}:generateContent?key={_geminiOptions.ApiKey}",
-                    geminiRequest,
-                    cancellationToken);
-
+                var response = await _httpClient.PostAsJsonAsync(url, geminiRequest, _jsonOptions, cancellationToken);
                 response.EnsureSuccessStatusCode();
 
                 using var json = await JsonDocument.ParseAsync(
