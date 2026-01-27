@@ -22,6 +22,7 @@ public class RagDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("ers");
         modelBuilder.Entity<DocumentChunk>(entity =>
         {
             entity.ToTable("document_chunks");

@@ -88,7 +88,8 @@ services:
       ASPNETCORE_URLS: http://0.0.0.0:5002
       ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=ers_v1;User Id=ersadmin;Password=ers@1234;Search Path=ers;
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - ers-net
 
@@ -141,7 +142,7 @@ services:
   # RAG Worker (NO HTTP)
   # ---------------------------
   rag-worker:
-    image: ers/rag-worker:1.1
+    image: ers/rag-worker:1.2
     container_name: ers-rag-worker
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
@@ -149,6 +150,8 @@ services:
       RabbitMQ__Hostname: rabbitmq
       RabbitMQ__Username: guest
       RabbitMQ__Password: guest
+      Gemini__ApiKey: "AIzaSyAncgh3CIMOci2DTtqnv0pr4-s_plCWtDc"
+      AI__ChatProvider: "Gemini"
     depends_on:
       postgres:
         condition: service_healthy
@@ -164,6 +167,7 @@ services:
 # ---------------------------
 volumes:
   pgdata:
+  document-storage:
 
 # ---------------------------
 # Network
