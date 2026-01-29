@@ -18,6 +18,8 @@ public class ChatRepository: IChatRepository
     public async Task AddAsync(ChatMessage message, CancellationToken ct = default)
     {
         await _db.ChatMessages.AddAsync(message, ct);
+        await _db.SaveChangesAsync(ct);
+
     }
 
     public async Task<IReadOnlyList<ChatMessage>> GetByProjectAsync(

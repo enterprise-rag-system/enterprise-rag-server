@@ -9,19 +9,16 @@ namespace ChatService.Service;
 
 public sealed class ChatService : IChatService
 {
-    private readonly AppDbContext _dbContext;
     private readonly IChatRepository _repository;
     private readonly IEventPublisher _eventPublisher;
     private readonly ILogger<ChatService> _logger;
 
 
     public ChatService(
-        AppDbContext dbContext,
         IChatRepository repository,
         IEventPublisher eventPublisher,
         ILogger<ChatService> logger)
     {
-        _dbContext = dbContext;
         _repository = repository;
         _eventPublisher = eventPublisher;
         _logger = logger;
@@ -29,6 +26,11 @@ public sealed class ChatService : IChatService
 
     public async Task<AddChatMessageResponse> AddUserMessageAsync(Guid projectId, string content, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            throw new ArgumentException("Message content cannot be empty", nameof(content));
+        }
+
         var correlationId = $"chat-{Guid.NewGuid():N}";
 
         using var scope = _logger.BeginScope(new Dictionary<string, object>
@@ -54,7 +56,6 @@ public sealed class ChatService : IChatService
             };
 
             await _repository.AddAsync(message, ct);
-            await _dbContext.SaveChangesAsync(ct);
 
             _logger.LogInformation(
                 "User chat message persisted with MessageId {MessageId}",
@@ -117,7 +118,6 @@ public sealed class ChatService : IChatService
             };
 
             await _repository.AddAsync(aiMessage, ct);
-            await _dbContext.SaveChangesAsync(ct);
 
             _logger.LogInformation(
                 "AI chat message persisted with TokenUsage {TokenUsage}",
