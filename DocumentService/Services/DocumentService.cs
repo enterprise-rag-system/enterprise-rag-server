@@ -33,6 +33,9 @@ public class DocumentService: IDocumentService
     {
         try
         {
+            if (file == null)
+                throw new ArgumentNullException(nameof(file));
+
             _logger.LogInformation("Uploading file {fileName}", file.FileName);
             _logger.LogInformation("Doc upload request for project {ProjectId}", projectId);
             var path = await _storage.SaveAsync(file, cancellationToken);
