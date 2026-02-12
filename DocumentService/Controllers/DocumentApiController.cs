@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using DocumentService.Helpers;
 using DocumentService.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,9 @@ namespace DocumentService.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/v1/document")]
+[Route("api/v{version:apiVersion}/document")]
+[ApiVersion("1.0")]
+
 public class DocumentApiController: ControllerBase
 {
     private readonly IDocumentService _documentService;

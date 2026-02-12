@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using AuthService.DTOs;
 using AuthService.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace AuthService.Controllers;
 
 [ApiController]
-[Route("api/v1/auth")]
+[Route("api/v{version:apiVersion}/auth")]
+[ApiVersion("1.0")]
+
 public class AuthController: ControllerBase
 {
     private readonly IAuthService _authService;

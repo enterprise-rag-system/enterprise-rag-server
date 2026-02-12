@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectService.Helpers;
@@ -8,7 +9,9 @@ namespace ProjectService.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/v1/projects")]
+[Route("api/v{version:apiVersion}/projects")]
+[ApiVersion("1.0")]
+
 public class ProjectsApiController:ControllerBase
 {
     private readonly IProjectService _projectService;

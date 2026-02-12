@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using ChatService.Interfaces;
 using ChatService.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace ChatService.Controllers;
 
 [ApiController]
-[Route("api/v1/chat")]
+[Route("api/v{version:apiVersion}/chat")]
+[ApiVersion("1.0")]
 [Authorize]
 public class ChatController : ControllerBase
 {

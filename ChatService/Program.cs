@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using ChatService.Infrastructure;
 using ChatService.Infrastructure.Messaging;
 using ChatService.Interfaces;
@@ -16,6 +17,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// API Versioning
+builder.Services.AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;
+    })
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
+    });
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(
