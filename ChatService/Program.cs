@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using ChatService.Filters;
 using ChatService.Infrastructure;
 using ChatService.Infrastructure.Messaging;
 using ChatService.Interfaces;
@@ -7,6 +8,9 @@ using ChatService.Messaging.Consumer;
 using ChatService.Messaging.Publisher;
 using ChatService.Middleware;
 using ChatService.Repositories;
+using ChatService.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -77,6 +81,15 @@ builder.Services.AddSwaggerGen(option =>
 
 builder.AddAppAuthentication();
 builder.Services.AddAuthorization();
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<AddChatMessageValidator>();
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
+
 
 var app = builder.Build();
 

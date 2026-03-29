@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using DocumentService.Filters;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Messaging;
 using DocumentService.Middleware;
@@ -65,6 +66,12 @@ builder.Services.AddSwaggerGen(option =>
 builder.AddAppAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddAuthorization();
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<DocumentValidationFilter>();
+});
+
 
 var app = builder.Build();
 

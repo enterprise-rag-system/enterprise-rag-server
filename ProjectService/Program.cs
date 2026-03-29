@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using ProjectService.Filters;
 using ProjectService.Infrastructure;
 using ProjectService.Middleware;
 using ProjectService.Services.Interfaces;
@@ -62,7 +63,10 @@ builder.AddAppAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddAuthorization();
 
-
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,9 +1,13 @@
 using Asp.Versioning;
 using AuthService.Configuration;
+using AuthService.Filters;
 using AuthService.Infrastructure;
 using AuthService.Interfaces;
 using AuthService.Middleware;
 using AuthService.Services;
+using AuthService.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -73,6 +77,14 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+});
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
 });
 
 
