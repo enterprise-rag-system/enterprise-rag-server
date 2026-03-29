@@ -1,4 +1,7 @@
 using ApiGateway.Middleware;
+using ApiGateway.Models;
+using ApiGateway.Services;
+using ApiGateway.Stores;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +37,12 @@ builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+builder.Services.Configure<RateLimitingConfig>(
+    builder.Configuration.GetSection("RateLimiting"));
+
+builder.Services.AddScoped<IRateLimitService, RateLimitService>();
+builder.Services.AddScoped<IRateLimitStore, InMemoryRateLimitStore>();
+
 
 var app = builder.Build();
 
@@ -43,6 +52,7 @@ app.UseCors("AllowAngular");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<RateLimitingMiddleware>();
 
 app.MapReverseProxy();
 
