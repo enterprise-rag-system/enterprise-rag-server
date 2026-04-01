@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RagService.Services;
+using RagService.Services.TranslatorService;
 using RagWorker.Consumer;
 using RagWorker.Infrastructure.Ingestion;
 using RagWorker.Infrastructure.Messaging;
@@ -10,6 +11,7 @@ using RagWorker.Interfaces.Factory;
 using RagWorker.Interfaces.Ingestion;
 using RagWorker.Interfaces.Messaging;
 using RagWorker.Interfaces.Rag;
+using RagWorker.Interfaces.Translator;
 using RagWorker.Interfaces.Vector;
 using RagWorker.Providers.Azure;
 using RagWorker.Providers.Common;
@@ -40,6 +42,7 @@ services.AddScoped<IRagQueryProcessor, RagQueryProcessor>();
 services.AddScoped<IDocumentIngestionService, DocumentIngestionService>();
 services.AddScoped<ITextExtractor, FileTextExtractor>();
 services.AddScoped<IChunkingService, ChunkingService>();
+builder.Services.AddHttpClient<ITranslationService, TranslationService>();
 
 services.AddSingleton<IMessageBus, RabbitMqMessageBus>();
 

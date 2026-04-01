@@ -3,6 +3,7 @@ using FluentAssertions;
 using RagWorker.Interfaces.AI;
 using RagWorker.Interfaces.Factory;
 using RagWorker.Interfaces.Rag;
+using RagWorker.Interfaces.Translator;
 using RagWorker.Interfaces.Vector;
 using RagWorker.Models.AI;
 using RagWorker.Models.Entities;
@@ -19,6 +20,7 @@ public class RagQueryProcessorTests
     private readonly IEmbeddingProviderFactory _embeddingFactory;
     private readonly IChatCompletionProvider _chatProvider;
     private readonly IEmbeddingProvider _embeddingProvider;
+    private readonly ITranslationService _translator;
 
     private readonly RagQueryProcessor _sut;
 
@@ -29,6 +31,7 @@ public class RagQueryProcessorTests
         _embeddingFactory = A.Fake<IEmbeddingProviderFactory>();
         _chatProvider = A.Fake<IChatCompletionProvider>();
         _embeddingProvider = A.Fake<IEmbeddingProvider>();
+        _translator = A.Fake<ITranslationService>();
 
         A.CallTo(() => _chatFactory.Create())
             .Returns(_chatProvider);
@@ -39,7 +42,8 @@ public class RagQueryProcessorTests
         _sut = new RagQueryProcessor(
             _vectorStore,
             _chatFactory,
-            _embeddingFactory);
+            _embeddingFactory,
+            _translator);
     }
 
 

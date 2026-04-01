@@ -5,6 +5,7 @@ using RagWorker.Models.Rag;
 using RagWorker.Models.AI;
 using RagWorker.Helpers;
 using RagWorker.Interfaces.Factory;
+using RagWorker.Interfaces.Translator;
 
 namespace RagWorker.Workers;
 
@@ -15,13 +16,17 @@ public sealed class RagQueryProcessor : IRagQueryProcessor
     private readonly IEmbeddingProvider _embeddingProvider;
     private readonly IVectorStore _vectorStore;
     private readonly IChatCompletionProvider _chatCompletionProvider;
+    private readonly ITranslationService _translator;
+
 
     public RagQueryProcessor(
         IVectorStore vectorStore,
         IChatCompletionProviderFactory chatFactory,
-        IEmbeddingProviderFactory embeddingFactory)
+        IEmbeddingProviderFactory embeddingFactory,
+        ITranslationService translator)
     {
         _vectorStore = vectorStore;
+        _translator = translator;
         _chatCompletionProvider = chatFactory.Create();
         _embeddingProvider = embeddingFactory.Create();
     }
@@ -38,11 +43,17 @@ public sealed class RagQueryProcessor : IRagQueryProcessor
 
         if (string.IsNullOrWhiteSpace(query.Question))
             throw new ArgumentException("Question cannot be empty");
-
+        
+        var language = await _translator.DetectLanguageAsync(query.Question);
+        
+        var englishQuery = language == "en"
+            ? query.Question
+            : await _translator.TranslateToEnglishAsync(query.Question);
+        
         // 1️⃣ Generate embedding for the user question
         var rawEmbedding =
             await _embeddingProvider.GenerateEmbeddingAsync(
-                query.Question,
+                englishQuery,
                 cancellationToken);
 
         // 2️⃣ Normalize embedding (CRITICAL for cosine similarity)
@@ -71,11 +82,16 @@ public sealed class RagQueryProcessor : IRagQueryProcessor
                     Prompt = prompt
                 },
                 cancellationToken);
+        
+        var finalResponse = language == "en"
+            ? completion.Answer
+            : await _translator.TranslateFromEnglishAsync(completion.Answer, language);
 
+        
         // 6️⃣ Return deterministic, auditable result
         return new RagResult
         {
-            Answer = completion.Answer,
+            Answer = finalResponse,
             SourceChunkIds = chunks.Select(c => c.Id).ToList(),
             TotalTokens =
                 completion.PromptTokens +
